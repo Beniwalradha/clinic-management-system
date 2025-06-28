@@ -7,30 +7,29 @@
 #include<algorithm>
 using namespace std;
 class patient {
-public:    
+public:   
+//members 
     string name;
     int age;
-    int phoneNumber;
+    string  phoneNumber;
     string doctor;
     string illness;   
     string visitDate;
-//public:
-    
+//functions
     void input();
     void display()const;
     bool isValidName(const string &str);
     bool isValidDate(const string &date);
+    bool isValidPhoneNumber(const string &number);
     
 };
 void patient::input(){
-
-
-    //name input
+//name input
     do{
         cout<<"Enter patient name :";
         getline(cin>>ws,name);
         if(!isValidName(name)){
-            cout<<"\nInvalid name\n";
+            cout<<"\nInvalid name!\n";
 
         }
         
@@ -45,6 +44,11 @@ void patient::input(){
             cin.ignore(1000,'\n');
         }
     }while(age<0||age>120||cin.fail());
+     //phone number input
+    do{
+        cout<<"Enter 10-digit phone number: ";
+        getline(cin>>ws,phoneNumber);
+    }while(!isValidPhoneNumber(phoneNumber));
     //illness inout
     do{
         cout<<"Enter patient illness :";
@@ -98,20 +102,38 @@ bool patient ::isValidDate(const string &date){
     return true;
     
 }
+bool patient:: isValidPhoneNumber(const string &number){
+    if(number.length()!=10){
+        cout<<"\nphone number must be 10 - digit\n";
+        return false;
+    }
+    else if(number[0]=='0'){
+        cout<<"\nphone number can not start with 0 \n";
+        return false;
+    }
+    for(char c:number){
+        if(!isdigit(c)){
+        cout<<"phone number contains only digit.\n";
+        return false;
+        }
+    }
+    return true;
+}
 void patient::display() const{
     cout<<"\n--patient details--\n";
     cout<<" Name:  "<<name<<endl;
     cout<<" Age: "<<age<<endl;
-    cout<<" Illness: "<<illness<<endl;
-    cout<<" Doctor: "<<doctor<<endl;
+    cout<<" phone number: "<<phoneNumber<<endl;
+    cout<<" Illness: "<<doctor<<endl;
+    cout<<" Doctor: "<<illness<<endl;
     cout<<"Visit Date: "<<visitDate<<endl;
 
 }
-//save patient to file
-void savepatient(const patient &p){
-    ofstream file("clinicManage.txt,ios::app");
+//save patient details to file(write in file)
+void savePatient(const patient &p){
+    ofstream file("clinicManage.txt",ios::app);
     if(file.is_open()){
-        file<<p.name<<","<<p.age<<","<<p.doctor<<","<<p.illness<<","<<p.visitDate<<",";
+        file<<p.name<<","<<p.age<<","<<p.phoneNumber<<","<<p.doctor<<","<<p.illness<<","<<p.visitDate<<"\n";
     }else{
         cout<<"Error ! could not open file.\n";
     }
@@ -126,13 +148,16 @@ readPatientsFromFile() {
         stringstream ss(line);
         patient p;
         string ageStr;
+        
         if(getline(ss, p.name, ',') &&
-            getline(ss, p.doctor, ',') &&
-            getline( ss,p.visitDate,',')&&
             getline(ss,ageStr,',')&&
-            getline(ss,p.illness,',') ) {
+            getline(ss,p.phoneNumber,',')&&
+            getline(ss, p.doctor, ',') &&
+            getline(ss,p.illness,',') &&
+            getline( ss,p.visitDate,',')){
             try {
                 p.age = stoi(ageStr);
+            
                 patients.push_back(p);
             } catch (...) {
                 cout << "Warning: Corrupted line skipped.\n";
@@ -141,7 +166,7 @@ readPatientsFromFile() {
     }
     return patients;
 }
-//save file
+//writeToFile(after update delete)
 
 
 void saveAllPatientsToFile(const vector<patient>& patients) {
@@ -224,7 +249,7 @@ int main() {
         if (choice == "1") {
             patient p;
             p.input();
-            savepatient(p);
+            savePatient(p);
             cout << "Patient added successfully.\n";
         } else if (choice == "2") {
             viewPatients();
