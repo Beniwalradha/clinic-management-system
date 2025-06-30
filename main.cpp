@@ -172,7 +172,7 @@ readPatientsFromFile() {
 void saveAllPatientsToFile(const vector<patient>& patients) {
     ofstream file("clinicManage.txt");
     for (const auto& p : patients) {
-        file << p.name << "," << p.age << "," << p.doctor << "," << p.illness << "," << p.visitDate << "\n";
+        file << p.name << "," << p.age << "," <<p.phoneNumber<<","<< p.doctor << "," << p.illness << "," << p.visitDate << "\n";
     }
     file.close();
 }
@@ -233,37 +233,139 @@ void deletePatient() {
         cout << " Patient not found.\n";
     }
 }
+void searchPatients() {
+    vector<patient> patients = readPatientsFromFile();
+    if (patients.empty()) {
+        cout << "No patient records found.\n";
+        return;
+    }
 
+    cout << "\nSearch by:\n";
+    cout << "1. Name\n2. Doctor Name\n3. Illness\nEnter choice: ";
+    string choice;
+    getline(cin, choice);
+
+    string keyword;
+    cout << "Enter search keyword: ";
+    getline(cin, keyword);
+
+    bool found = false;
+    for (const auto& p : patients) {
+        if ((choice == "1" && p.name == keyword) ||
+            (choice == "2" && p.doctor == keyword) ||
+            (choice == "3" && p.illness == keyword)) {
+            p.display();
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "No  patient found.\n";
+    }
+}
+void sortPatients() {
+    vector<patient> patients = readPatientsFromFile();
+    if (patients.empty()) {
+        cout << "No patient records to sort.\n";
+        return;
+    }
+
+    cout << "\nSort by:\n1. Name\n2. Age\nEnter choice: ";
+    string choice;
+    getline(cin, choice);
+
+    if (choice == "1") {
+        sort(patients.begin(), patients.end(), [](const patient &a, const patient &b) {
+            return a.name < b.name;
+        });
+    } else if (choice == "2") {
+        sort(patients.begin(), patients.end(), [](const patient &a, const patient &b) {
+            return a.age < b.age;
+        });
+    } else {
+        cout << "Invalid choice.\n";
+        return;
+    }
+
+    for (const auto& p : patients) {
+        p.display();
+    }
+}
+void todayVisitSummary() {
+    vector<patient> patients = readPatientsFromFile();
+    if (patients.empty()) {
+        cout << "No patient records found.\n";
+        return;
+    }
+
+    string todayDate;
+    cout << "Enter today's date (YYYY-MM-DD): ";
+    getline(cin, todayDate);
+
+    bool found = false;
+    cout << "\n-- Today's Visit Summary --\n";
+    for (const auto& p : patients) {
+        if (p.visitDate == todayDate) {
+            p.display();
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "No data found for today.\n";
+    }
+}
 int main() {
     while (true) {
-        cout << "\n===== Clinic Patient Management =====\n";
+        cout << "\n===== Clinic Patient Management Menu =====\n";
         cout << "1. Add Patient\n";
         cout << "2. View All Patients\n";
         cout << "3. Update Patient\n";
         cout << "4. Delete Patient\n";
-        cout << "5. Exit\n";
-        cout << "Choose an option: ";
-        string choice;
-        getline(cin, choice);
+        cout << "5. Search Patient\n";
+        cout << "6. Sort Patients\n";
+        cout << "7. Today's Visit Summary\n";
+        cout << "8. Exit\n";
+        cout << "Choose an option (1-8): ";
 
-        if (choice == "1") {
-            patient p;
-            p.input();
-            savePatient(p);
-            cout << "Patient added successfully.\n";
-        } else if (choice == "2") {
-            viewPatients();
-        } else if (choice == "3") {
-            updatePatient();
-        } else if (choice == "4") {
-            deletePatient();
-        } else if (choice == "5") {
-            cout << " Exiting program. !\n";
-            break;
-        } else {
-            cout << "Invalid choice!. \n";
+        int option;
+        cin >> option;
+        cin.ignore();  // clear newline after int input
+
+        switch (option) {
+            case 1: {
+                patient p;
+                p.input();
+                savePatient(p);
+                cout << "Patient added successfully.\n";
+                break;
+            }
+            case 2:
+                viewPatients();
+                break;
+            case 3:
+                updatePatient();
+                break;
+            case 4:
+                deletePatient();
+                break;
+            case 5:
+                searchPatients();
+                break;
+            case 6:
+                sortPatients();
+                break;
+            case 7:
+                todayVisitSummary();
+                break;
+            case 8:
+                cout << "Exiting program.!\n";
+                return 0;
+            default:
+                cout << "Invalid option.\n";
         }
     }
+
     return 0;
 }
 
